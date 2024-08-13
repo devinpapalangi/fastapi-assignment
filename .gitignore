@@ -1,0 +1,7 @@
+.env
+
+alembic.ini
+
+__pycache__/
+
+fastapi-assignment/
