@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel
 
 
@@ -8,6 +8,10 @@ class UserResponse(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
 
-class UpsertUserResponse(BaseModel):
+class SingleUserResponse(BaseModel):
     message: Optional[str] = None
     data: Optional[UserResponse] = None
+    
+class MultipleUserResponse(BaseModel):
+    message: Optional[str] = None
+    data: Optional[List[UserResponse]] = None
