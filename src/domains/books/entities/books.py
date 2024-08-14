@@ -1,7 +1,7 @@
-from sqlalchemy import String, Integer
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy import ForeignKey, String, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.domains.users.entities.users import User
 from src.shared.entities.base_model import BaseModel
 
 class Book(BaseModel):
@@ -9,8 +9,9 @@ class Book(BaseModel):
     id: Mapped[int] = mapped_column(Integer,primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     author: Mapped[str] = mapped_column(String(255),nullable=False)
-    isbn: Mapped[str] = mapped_column(String(255),nullable=False)
+    isbn: Mapped[str] = mapped_column(String(255),nullable=False, unique=True)
     
+    created_by: Mapped[int] = mapped_column(ForeignKey('users.id'))
     def __repr__(self):
         return f"Book(id={self.id!r}, name={self.name!r}, author={self.author!r}, isbn={self.isbn!r})"
     
