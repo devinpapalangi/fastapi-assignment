@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from src.domains.books.entities.books import Book
 from src.domains.outbounds.outbound_interface import IOutboundRepository
 from src.domains.outbounds.outbount_repository import OutboundRepository
-from src.model.request.book_request import UpsertBookRequest
+from src.model.request.book_request import BookQueryParams, UpsertBookRequest
 from src.model.response.book_response import BookResponse
 
 
@@ -41,9 +41,14 @@ class BookRepository(IBookRepository):
         )
         return book_response 
     
-    def get_books(self, request: Request) -> List[BookResponse]:
+    def get_books(self, request: Request, params: BookQueryParams) -> List[BookResponse]:
         books_response = []
-        books = self.db.query(Book).all()
+        
+        books = self.db.query(Book).filter(
+            Book.name.like(f"%{params.name}%") if params.name is not None else True,
+            Book.author.like(f"%{params.author}%") if params.author is not None else True,
+            Book.isbn.like(f"%{params.isbn}%") if params.isbn is not None else True
+        ).all()
         
         for book in books:
             book_response = BookResponse(

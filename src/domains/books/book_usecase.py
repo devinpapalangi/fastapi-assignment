@@ -2,7 +2,7 @@ from typing import List
 from fastapi import Depends, Request
 from src.domains.books.books_interface import IBookRepository, IBookUsecase
 from src.domains.books.books_repository import BookRepository
-from src.model.request.book_request import UpsertBookRequest
+from src.model.request.book_request import BookQueryParams, UpsertBookRequest
 from src.model.response.book_response import BookResponse
 
 
@@ -15,8 +15,8 @@ class BookUsecase(IBookUsecase):
         return self.book_repository.create_book(request,create_order_request)
     
     
-    def get_books(self, request: Request) -> List[BookResponse]:
-        return self.book_repository.get_books(request)
+    def get_books(self, request: Request, params: BookQueryParams) -> List[BookResponse]:
+        return self.book_repository.get_books(request, params)
     
     def get_book_by_id(self, request: Request, book_id: int) -> BookResponse:
         return self.book_repository.get_book_by_id(request, book_id)

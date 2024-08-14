@@ -8,3 +8,8 @@ class UpsertBookRequest(BaseModel):
     author: str = Field(description='The author of the book')
     isbn: str = Field(description='The ISBN of the book')
     created_by: int = Field(description='The created by (user id) of the book')
+    
+class BookQueryParams(BaseModel):
+    name: Union[str, None] = None
+    author: Union[str, None] = None
+    isbn: Union[str, None] = None
