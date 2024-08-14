@@ -6,18 +6,29 @@ from src.domains.books.books_interface import IBookRepository
 from sqlalchemy.orm import Session
 
 from src.domains.books.entities.books import Book
+from src.domains.outbounds.outbound_interface import IOutboundRepository
+from src.domains.outbounds.outbount_repository import OutboundRepository
 from src.model.request.book_request import UpsertBookRequest
 from src.model.response.book_response import BookResponse
 
 
 
 class BookRepository(IBookRepository):
-    def __init__(self, db:Session = Depends(get_db)):
+    def __init__(self, db:Session = Depends(get_db), outbound_repository:IOutboundRepository = Depends(OutboundRepository)):
         self.db = db
-        
+        self.outbound_repository = outbound_repository
    
     
     def create_book(self, request: Request,create_book_request: UpsertBookRequest) -> BookResponse:
+        isbn_count = self.db.query(Book).filter(Book.isbn == create_book_request.isbn).count()
+        if isbn_count > 0:
+            raise HTTPException(status_code=400, detail="Book with this ISBN already exists")
+        
+        is_valid_isbn = self.outbound_repository.is_isbn_exist(request, create_book_request.isbn)
+        
+        if not is_valid_isbn:
+            raise HTTPException(status_code=400, detail="ISBN Not Found/Not Registered in Google Book")
+        
         new_book = Book(**create_book_request.model_dump())
         self.db.add(new_book)
         self.db.commit()

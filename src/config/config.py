@@ -13,6 +13,8 @@ class Config(BaseSettings):
     DB_USER:str
     DB_PASSWORD:str
     
+    GOOGLE_BOOK_API_KEY:str
+    
     model_config = SettingsConfigDict(env_file=".env")
     
 

@@ -16,6 +16,9 @@ class UserRepository(IUserRepository):
         self.db = db
         
     def create_user(self, request: Request,create_user_request: UpsertUserRequest) -> UserResponse:
+        email_count = self.db.query(User).filter(User.email == create_user_request.email).count()
+        if email_count > 0:
+            raise HTTPException(status_code=400, detail="User with this email already exists")
         password_hash = get_password_hash(create_user_request.password)
         new_user = User(
             name= create_user_request.name,
