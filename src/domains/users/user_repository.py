@@ -63,7 +63,7 @@ class UserRepository(IUserRepository):
         
         return user_response
     
-    def update_user(self, request: Request, user_id: int, update_user_request: UpsertUserRequest) -> SingleMessageResponse:
+    def update_user(self, request: Request, user_id: int, update_user_request: UpsertUserRequest) -> str:
         user = self.db.query(User).filter(User.id == user_id).first()
         
         if user is None:
@@ -73,9 +73,9 @@ class UserRepository(IUserRepository):
         user.email = update_user_request.email
         self.db.commit()
         
-        return SingleMessageResponse(message='Succesfully updated user!')
+        return 'Succesfully updated user!'
     
-    def delete_user(self, request: Request, user_id: int) -> SingleMessageResponse:
+    def delete_user(self, request: Request, user_id: int) -> str:
         user = self.db.query(User).filter(User.id == user_id).first()
         
         if user is None:
@@ -84,4 +84,4 @@ class UserRepository(IUserRepository):
         self.db.delete(user)
         self.db.commit()
         
-        return SingleMessageResponse(message='Succesfully deleted user!')
+        return 'Succesfully deleted user!'
