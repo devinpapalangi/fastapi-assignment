@@ -18,17 +18,9 @@ class BookRepository(IBookRepository):
         self.db = db
         self.outbound_repository = outbound_repository
    
-    
+    def is_duplicate_isbn(self, request: Request, isbn: str) -> bool:
+        return self.db.query(Book).filter(Book.isbn == isbn).count() > 0
     def create_book(self, request: Request,create_book_request: UpsertBookRequest) -> BookResponse:
-        isbn_count = self.db.query(Book).filter(Book.isbn == create_book_request.isbn).count()
-        if isbn_count > 0:
-            raise HTTPException(status_code=400, detail="Book with this ISBN already exists")
-        
-        is_valid_isbn = self.outbound_repository.is_isbn_exist(request, create_book_request.isbn)
-        
-        if not is_valid_isbn:
-            raise HTTPException(status_code=400, detail="ISBN Not Found/Not Registered in Google Book")
-        
         new_book = Book(**create_book_request.model_dump())
         self.db.add(new_book)
         self.db.commit()
@@ -44,11 +36,22 @@ class BookRepository(IBookRepository):
     def get_books(self, request: Request, params: BookQueryParams) -> List[BookResponse]:
         books_response = []
         
+        #mending mana? ini atau
         books = self.db.query(Book).filter(
             Book.name.like(f"%{params.name}%") if params.name is not None else True,
             Book.author.like(f"%{params.author}%") if params.author is not None else True,
             Book.isbn.like(f"%{params.isbn}%") if params.isbn is not None else True
         ).all()
+        # atau ini?
+        # filters = []
+        # if params.name is not None:
+        #     filters.append(Book.name.like(f"%{params.name}%"))
+        # if params.author is not None:
+        #     filters.append(Book.author.like(f"%{params.author}%"))
+        # if params.isbn is not None:
+        #     filters.append(Book.isbn.like(f"%{params.isbn}%"))
+            
+        #     books = self.db.query(Book).filter(and_(*filters)).all()
         
         for book in books:
             book_response = BookResponse(

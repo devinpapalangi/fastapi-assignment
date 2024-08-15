@@ -24,6 +24,10 @@ class IBookRepository:
     def delete_book(self, request: Request, book_id: int) -> SingleMessageResponse:
         pass
     
+    @abc.abstractmethod
+    def is_duplicate_isbn(self, request: Request, isbn: str) -> bool:
+        pass
+    
 class IBookUsecase:
     @abc.abstractmethod
     def create_book(self, request: Request,create_order_request: UpsertBookRequest) -> BookResponse:
@@ -40,3 +44,5 @@ class IBookUsecase:
     
     def delete_book(self, request: Request, book_id: int) -> SingleMessageResponse:
         pass
+    
+    
