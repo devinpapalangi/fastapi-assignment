@@ -83,6 +83,13 @@ class UserUsecase(IUserUsecase):
         )
     
     def delete_user(self, request: Request, user_id: int) -> str:
+        begin_transaction(request)
         user = self.user_repository.get_user_by_id(request, user_id)
-        message = self.user_repository.delete_user(request, user)
-        return self.user_repository.delete_user(request, user_id)
+        
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        res = self.user_repository.delete_user(request, user)
+        
+        commit(request)
+        return res

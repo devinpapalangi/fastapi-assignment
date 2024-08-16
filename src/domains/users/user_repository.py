@@ -45,6 +45,7 @@ class UserRepository(IUserRepository):
     def delete_user(self, request: Request, user: User) -> str:
         
         self.get_db(request).delete(user)
+        self.get_db(request).flush()
         
         return 'Succesfully deleted user!'
     
