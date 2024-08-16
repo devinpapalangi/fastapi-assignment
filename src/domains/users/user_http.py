@@ -30,11 +30,11 @@ def get_user_by_id(request: Request, user_id: int, user_usecase: IUserUsecase= D
     
     return SingleUserResponse(data=user, message='Succesfully retrieved user!')
 
-@router.put('/{user_id}', response_model=SingleMessageResponse)
-def update_user(request: Request, user_id: int, update_user_request: UpsertUserRequest, user_usecase: IUserUsecase= Depends(UserUsecase)) -> SingleMessageResponse:
-    message = user_usecase.update_user(request, user_id, update_user_request)
+@router.put('/{user_id}', response_model=SingleUserResponse)
+def update_user(request: Request, user_id: int, update_user_request: UpsertUserRequest, user_usecase: IUserUsecase= Depends(UserUsecase)) -> SingleUserResponse:
+    new_user_Data = user_usecase.update_user(request, user_id, update_user_request)
     
-    return SingleMessageResponse(message=message)
+    return SingleUserResponse(data=new_user_Data, message='Succesfully updated user!')
 
 @router.delete('/{user_id}', response_model=SingleMessageResponse)
 def delete_user(request: Request, user_id: int, user_usecase: IUserUsecase= Depends(UserUsecase)) -> SingleMessageResponse:

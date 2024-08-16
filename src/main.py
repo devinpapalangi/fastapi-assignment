@@ -8,8 +8,10 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from src.domains.auth import auth_http
 from src.domains.books import book_http
 from src.domains.users import user_http
+from src.utils.database_utils import rollback_all
 
 
 app = FastAPI()
@@ -39,6 +41,7 @@ async def validation_exception_handler(
 async def validation_exception_handler(
     request: Request, exc: ValidationError
 ) -> JSONResponse:
+    rollback_all(request)
     err = " ".join([str(i) for i in exc.errors()[0]["loc"]])
     return JSONResponse(
         status_code=http.HTTPStatus.BAD_REQUEST,
@@ -55,6 +58,7 @@ async def validation_exception_handler(
 async def http_exception_handler(
     request: Request, exc: StarletteHTTPException
 ) -> JSONResponse:
+    rollback_all(request)
     return JSONResponse(
         status_code=exc.status_code,
         content=jsonable_encoder({"error": exc.detail, "status_code": exc.status_code}),
@@ -63,9 +67,11 @@ async def http_exception_handler(
 
 @app.exception_handler(500)
 async def internal_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    rollback_all(request)
     return JSONResponse(
         status_code=500,
         content=jsonable_encoder({"status_code": 500, "error": str(exc)}),
     )
 app.include_router(book_http.router)
 app.include_router(user_http.router)
+app.include_router(auth_http.router)

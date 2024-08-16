@@ -6,8 +6,6 @@ from src.domains.users.user_interface import IUserRepository
 from sqlalchemy.orm import Session
 
 from src.model.request.user_request import UpsertUserRequest
-from src.model.response.user_response import UserResponse
-from src.shared.response.single_message_response import SingleMessageResponse
 from src.utils.password_hashing import get_password_hash
 
 
@@ -15,73 +13,42 @@ class UserRepository(IUserRepository):
     def __init__(self, db: Session = Depends(get_db), ):
         self.db = db
         
-    def create_user(self, request: Request,create_user_request: UpsertUserRequest) -> UserResponse:
-        email_count = self.db.query(User).filter(User.email == create_user_request.email).count()
-        if email_count > 0:
-            raise HTTPException(status_code=400, detail="User with this email already exists")
-        password_hash = get_password_hash(create_user_request.password)
-        new_user = User(
-            name= create_user_request.name,
-            email=create_user_request.email,
-            hashed_password = password_hash
-        )
-        user_response = UserResponse(
-            id=new_user.id,
-            name=new_user.name,
-            email=new_user.email
-        )
-        self.db.add(new_user)
-        self.db.commit()
-        self.db.refresh(new_user)
-        return user_response
-    
-    def get_users(self, request: Request) -> List[UserResponse]:
-        users_response = []
-        users = self.db.query(User).all()
-        
-        for user in users:
-            user_response = UserResponse(
-                id = user.id,
-                name = user.name,
-                email = user.email
-            )
-            users_response.append(user_response)
-        
-        return users_response
-    
-    def get_user_by_id(self, request: Request, user_id: int) -> UserResponse:
-        user = self.db.query(User).filter(User.id == user_id).first()
-        
-        if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        user_response = UserResponse(
-            id = user.id,
-            name = user.name,
-            email = user.email
+    def get_db(self, request: Request) -> Session:
+        return (
+            request.state.db
+            if request.state.db is not None
+            else self.db
         )
         
-        return user_response
+    def create_user(self, request: Request,user: User) -> User:
+        self.get_db(request).add(user)
+        self.get_db(request).flush()
+        return user
     
-    def update_user(self, request: Request, user_id: int, update_user_request: UpsertUserRequest) -> str:
-        user = self.db.query(User).filter(User.id == user_id).first()
+    def get_users(self, request: Request) -> List[User]:
+        users = self.get_db(request).query(User).all()
         
-        if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
+        return users
+    
+    def get_user_by_id(self, request: Request, user_id: int) -> User:
+        user = self.get_db(request).query(User).filter(User.id == user_id).first()
         
+        return user
+    
+    def update_user(self, request: Request, update_user_request: UpsertUserRequest, user: User) -> User:
         user.name = update_user_request.name
         user.email = update_user_request.email
-        self.db.commit()
+        user.hashed_password = get_password_hash(update_user_request.password)
+        self.get_db(request).flush()
+        return user
         
-        return 'Succesfully updated user!'
-    
-    def delete_user(self, request: Request, user_id: int) -> str:
-        user = self.db.query(User).filter(User.id == user_id).first()
+    def delete_user(self, request: Request, user: User) -> str:
         
-        if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        self.db.delete(user)
-        self.db.commit()
+        self.get_db(request).delete(user)
         
         return 'Succesfully deleted user!'
+    
+    def get_user_by_email(self, request: Request, email: str) -> User:
+        user = self.get_db(request).query(User).filter(User.email == email).first()
+        
+        return user
