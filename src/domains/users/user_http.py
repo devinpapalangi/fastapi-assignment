@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, Request
 
+from src.depedencies.auth_depedencies import bearer_auth
 from src.domains.users.user_usecase import UserUsecase
 from src.domains.users.user_interface import IUserUsecase
 from src.model.request.user_request import UpsertUserRequest
@@ -9,14 +10,10 @@ from src.model.response.user_response import MultipleUserResponse, SingleUserRes
 from src.shared.response.single_message_response import SingleMessageResponse
 
 
-router = APIRouter(prefix='/api/v1/users', tags=['Users'])
+router = APIRouter(prefix='/api/v1/users', tags=['Users'], dependencies=[Depends(bearer_auth)])
 
 
-@router.post('/', response_model=SingleUserResponse)
-def create_user(request: Request,create_user_request: UpsertUserRequest, user_usecase: IUserUsecase= Depends(UserUsecase)) -> SingleUserResponse:
-    new_user = user_usecase.create_user(request,create_user_request)
-    
-    return SingleUserResponse(data=new_user, message='Succesfully created user!')
+
 
 @router.get('/', response_model=MultipleUserResponse)
 def get_users(request: Request, user_usecase: IUserUsecase= Depends(UserUsecase)) -> MultipleUserResponse:

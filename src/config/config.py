@@ -16,7 +16,7 @@ class Config(BaseSettings):
     GOOGLE_BOOK_API_KEY:str
     
     JWT_SECRET_KEY: str
-    JWT_EXPIRE_MINUTES: str
+    JWT_EXPIRE_MINUTES: int
     JWT_HASHING_ALGORITHM: str
     
     model_config = SettingsConfigDict(env_file=".env")

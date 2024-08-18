@@ -6,8 +6,10 @@ from src.config.config import get_config
 from src.domains.users.user_interface import IUserRepository
 from src.domains.users.user_repository import UserRepository
 
+http_bearer = HTTPBearer()
 
-def bearer_auth(request: Request, auth: HTTPAuthorizationCredentials = Depends(HTTPBearer), user_repository: IUserRepository = Depends(UserRepository)):
+
+def bearer_auth(request: Request, auth: HTTPAuthorizationCredentials = Depends(http_bearer), user_repository: IUserRepository = Depends(UserRepository)):
     config = get_config()
     header = request.headers['Authorization'].removeprefix('Bearer ')
     payload = jwt.decode(header, config.JWT_SECRET_KEY, algorithms=[config.JWT_HASHING_ALGORITHM])

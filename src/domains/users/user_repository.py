@@ -16,14 +16,14 @@ class UserRepository(IUserRepository):
     def get_db(self, request: Request) -> Session:
         return (
             request.state.db
-            if request.state.db is not None
+            if hasattr(request.state, "db") and request.state.db is not None
             else self.db
         )
         
-    def create_user(self, request: Request,user: User) -> User:
+    def create_user(self, request: Request,user: User) -> str:
         self.get_db(request).add(user)
         self.get_db(request).flush()
-        return user
+        return 'Succesfully created user!'
     
     def get_users(self, request: Request) -> List[User]:
         users = self.get_db(request).query(User).all()

@@ -21,7 +21,7 @@ class BookRepository(IBookRepository):
     def get_db(self, request: Request) -> Session:
         return (
             request.state.db
-            if request.state.db is not None
+            if hasattr(request.state, "db") and request.state.db is not None
             else self.db
         )
    
@@ -39,23 +39,15 @@ class BookRepository(IBookRepository):
         books = self.get_db(request).query(Book).filter(
             Book.name.like(f"%{params.name}%") if params.name is not None else True,
             Book.author.like(f"%{params.author}%") if params.author is not None else True,
-            Book.isbn.like(f"%{params.isbn}%") if params.isbn is not None else True
+            Book.isbn.like(f"%{params.isbn}%") if params.isbn is not None else True,
+            Book.created_by == request.state.user.id
         ).all()
-        # atau ini?
-        # filters = []
-        # if params.name is not None:
-        #     filters.append(Book.name.like(f"%{params.name}%"))
-        # if params.author is not None:
-        #     filters.append(Book.author.like(f"%{params.author}%"))
-        # if params.isbn is not None:
-        #     filters.append(Book.isbn.like(f"%{params.isbn}%"))
-            
-        #     books = self.get_db(request).query(Book).filter(and_(*filters)).all()
+        
         
         return books
     
     def get_book_by_id(self, request: Request, book_id: int) -> Book:
-        book = self.get_db(request).query(Book).filter(Book.id == book_id).first()
+        book = self.get_db(request).query(Book).filter(Book.id == book_id, Book.created_by != request.state.user.id).first()
         return book
     
     def update_book(self, request: Request, update_book_request: UpsertBookRequest, book: Book) -> Book:

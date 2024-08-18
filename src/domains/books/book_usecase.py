@@ -31,7 +31,12 @@ class BookUsecase(IBookUsecase):
             raise HTTPException(status_code=400, detail="ISBN Not Found")
         
             
-        new_book = Book(**create_order_request.model_dump())
+        new_book = Book(
+            name= create_order_request.name,
+            author=create_order_request.author,
+            isbn=create_order_request.isbn,
+            created_by= request.state.user.id
+        )
         
         self.book_repository.create_book(request, new_book)
         commit(request)
@@ -107,3 +112,4 @@ class BookUsecase(IBookUsecase):
         res = self.book_repository.delete_book(request, book_tobedeleted)
         commit(request)
         return res
+    

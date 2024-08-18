@@ -13,7 +13,7 @@ from src.shared.response.single_message_response import SingleMessageResponse
 
 class IUserRepository:
     @abc.abstractmethod
-    def create_user(self, request: Request,user: User) -> User:
+    def create_user(self, request: Request,user: User) -> str:
         pass
     
     @abc.abstractmethod
@@ -34,9 +34,6 @@ class IUserRepository:
         pass
 
 class IUserUsecase:
-    @abc.abstractmethod
-    def create_user(self, request: Request,create_user_request: UpsertUserRequest) -> UserResponse:
-        pass
     @abc.abstractmethod
     def get_users(self, request: Request) -> List[UserResponse]:
         pass

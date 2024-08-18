@@ -14,24 +14,7 @@ class UserUsecase(IUserUsecase):
     def __init__(self, user_repository: IUserRepository = Depends(UserRepository)):
         self.user_repository = user_repository
         
-    def create_user(self, request: Request,create_user_request: UpsertUserRequest) -> UserResponse:
-        begin_transaction(request)
-        hashed_password = get_password_hash(create_user_request.password)
-    
-        new_user = User(
-            name= create_user_request.name,
-            email=create_user_request.email,
-            hashed_password = hashed_password
-        )
-        self.user_repository.create_user(request,user=new_user)
-        
-        commit(request)
-        
-        return UserResponse(
-            id=new_user.id,
-            name=new_user.name,
-            email=new_user.email
-        )
+   
     
     def get_users(self, request: Request) -> List[UserResponse]:
         users = self.user_repository.get_users(request)

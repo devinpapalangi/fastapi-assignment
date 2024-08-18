@@ -3,6 +3,7 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, Request
 
+from src.depedencies.auth_depedencies import bearer_auth
 from src.domains.books.book_usecase import BookUsecase
 from src.domains.books.books_interface import IBookUsecase
 from src.model.request.book_request import BookQueryParams, UpsertBookRequest
@@ -10,7 +11,7 @@ from src.model.response.book_response import MultipleBookResponse, SingleBookRes
 from src.shared.response.single_message_response import SingleMessageResponse
 
 
-router  = APIRouter(prefix='/api/v1/books', tags=['Books'])
+router  = APIRouter(prefix='/api/v1/books', tags=['Books'], dependencies=[Depends(bearer_auth)])
 
 @router.post('/', response_model=SingleBookResponse)
 def create_book(request: Request,create_order_request: UpsertBookRequest, book_usecase: IBookUsecase= Depends(BookUsecase)) -> SingleBookResponse:
@@ -19,7 +20,7 @@ def create_book(request: Request,create_order_request: UpsertBookRequest, book_u
     return SingleBookResponse(data=new_book, message='Succesfully created book!')
 
 @router.get('/', response_model=MultipleBookResponse)
-def get_books(request: Request, book_usecase: IBookUsecase= Depends(BookUsecase), book_query_params: BookQueryParams = Depends()) -> MultipleBookResponse:
+def get_books(request: Request, book_usecase: IBookUsecase= Depends(BookUsecase), book_query_params: BookQueryParams = Depends(), ) -> MultipleBookResponse:
     books = book_usecase.get_books(request, book_query_params)
     
     return MultipleBookResponse(data=books, message='Succesfully retrieved books!')
