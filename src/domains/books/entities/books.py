@@ -13,5 +13,5 @@ class Book(BaseModel):
     
     created_by: Mapped[int] = mapped_column(ForeignKey('users.id'), index=True)
     def __repr__(self):
-        return f"Book(id={self.id!r}, name={self.name!r}, author={self.author!r}, isbn={self.isbn!r})"
+        return f"Book(id={self.id!r}, name={self.name!r}, author={self.author!r}, isbn={self.isbn!r}, created_by={self.created_by!r})"
     

@@ -3,25 +3,26 @@ from typing import List
 
 from fastapi import Request
 
+from src.domains.books.entities.books import Book
 from src.model.request.book_request import BookQueryParams, UpsertBookRequest
-from src.model.response.book_response import BookResponse, MultipleBookResponse
+from src.model.response.book_response import BookResponse
 from src.shared.response.single_message_response import SingleMessageResponse
 
 class IBookRepository:
     @abc.abstractmethod
-    def create_book(self, request: Request,create_order_request: UpsertBookRequest) -> BookResponse:
+    def create_book(self, request: Request,book: Book) -> Book:
         pass
     @abc.abstractmethod
-    def get_books(self, request: Request, params: BookQueryParams) -> List[BookResponse]:
+    def get_books(self, request: Request, params: BookQueryParams) -> List[Book]:
         pass
     @abc.abstractmethod
-    def get_book_by_id(self, request: Request, book_id: int) -> BookResponse:
+    def get_book_by_id(self, request: Request, book_id: int) -> Book:
         pass
     @abc.abstractmethod
-    def update_book(self, request: Request, book_id: int, update_book_request: UpsertBookRequest) -> SingleMessageResponse:
+    def update_book(self, request: Request, update_book_request: UpsertBookRequest, book: Book) -> Book:
         pass
     @abc.abstractmethod
-    def delete_book(self, request: Request, book_id: int) -> SingleMessageResponse:
+    def delete_book(self, request: Request, Book: Book) -> str:
         pass
     
     @abc.abstractmethod
@@ -32,17 +33,18 @@ class IBookUsecase:
     @abc.abstractmethod
     def create_book(self, request: Request,create_order_request: UpsertBookRequest) -> BookResponse:
         pass
-    
-    def get_books(self, request: Request, params: BookQueryParams) -> MultipleBookResponse:
+    @abc.abstractmethod
+    def get_books(self, request: Request, params: BookQueryParams) -> List[BookResponse]:
         pass
     
+    @abc.abstractmethod
     def get_book_by_id(self, request: Request, book_id: int) -> BookResponse:
         pass
-    
-    def update_book(self, request: Request, book_id: int, update_book_request: UpsertBookRequest) -> SingleMessageResponse:
+    @abc.abstractmethod
+    def update_book(self, request: Request, book_id: int, update_book_request: UpsertBookRequest) -> BookResponse:
         pass
-    
-    def delete_book(self, request: Request, book_id: int) -> SingleMessageResponse:
+    @abc.abstractmethod
+    def delete_book(self, request: Request, book_id: int) -> str:
         pass
     
     

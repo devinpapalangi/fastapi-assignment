@@ -72,7 +72,7 @@ class UserUsecase(IUserUsecase):
             raise HTTPException(status_code=400, detail="Email already exists")
         
         
-        updated_user = self.user_repository.update_user(request,   update_user_request,user,)
+        updated_user = self.user_repository.update_user(request, update_user_request,user)
         
         commit(request)
         
